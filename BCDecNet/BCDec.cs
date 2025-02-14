@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace BCDecNet;
@@ -158,16 +159,29 @@ public static class BCDec {
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-	private static byte ComputeNormalZ(byte x, byte y) {
-		var nx = 2 * (x / 255.0d) - 1;
-		var ny = 2 * (y / 255.0d) - 1;
-		var nz = 0.0d;
+	public static float ComputeNormalZ(float x, float y) {
+		var nx = 2 * x - 1;
+		var ny = 2 * y - 1;
 		var nz2 = 1 - nx * nx - ny * ny;
-		if (nz2 > 0) {
-			nz = Math.Sqrt(nz2);
-		}
+		var nz = nz2 > 0 ? Math.Sqrt(nz2) : 0;
+		return (float) ((nz + 1) / 2.0d);
+	}
 
-		return (byte) Math.Clamp((int) (255.0d * (nz + 1) / 2.0d), byte.MinValue, byte.MaxValue);
+	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+	public static byte ComputeNormalZ(byte x, byte y) => byte.CreateSaturating(ComputeNormalZ(x / 255.0f, y / 255.0f));
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+	public static void ComputeNormal(Span<float> data, int stride = 4, int xIndex = 0, int yIndex = 1, int zIndex = 2) {
+		for (var index = 0; index < data.Length; index += stride) {
+			data[index + zIndex] = ComputeNormalZ(data[index + xIndex], data[index + yIndex]);
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+	public static void ComputeNormal(Span<byte> data, int stride = 4, int xIndex = 0, int yIndex = 1, int zIndex = 2) {
+		for (var index = 0; index < data.Length; index += stride) {
+			data[index + zIndex] = ComputeNormalZ(data[index + xIndex], data[index + yIndex]);
+		}
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
