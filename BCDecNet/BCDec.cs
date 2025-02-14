@@ -168,7 +168,7 @@ public static class BCDec {
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-	public static byte ComputeNormalZ(byte x, byte y) => byte.CreateSaturating(ComputeNormalZ(x / 255.0f, y / 255.0f));
+	public static byte ComputeNormalZ(byte x, byte y) => byte.CreateSaturating(ComputeNormalZ(x / 255.0f, y / 255.0f) * 255.0f);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 	public static void ComputeNormal(Span<float> data, int stride = 4, int xIndex = 0, int yIndex = 1, int zIndex = 2) {
