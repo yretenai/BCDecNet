@@ -1,4 +1,3 @@
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace BCDecNet;
@@ -151,7 +150,7 @@ public static class BCDec {
 			for (var heightIndex = 0; heightIndex < height; heightIndex += 4) {
 				for (var widthIndex = 0; widthIndex < width; widthIndex += 4) {
 					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 2;
-					NativeMethods.bcdec_bc5(src, dst, width, isSigned);
+					NativeMethods.bcdec_bc5(src, dst, width * 2, isSigned);
 					src += BC5BlockSize;
 				}
 			}
@@ -242,7 +241,7 @@ public static class BCDec {
 			for (var heightIndex = 0; heightIndex < height; heightIndex += 4) {
 				for (var widthIndex = 0; widthIndex < width; widthIndex += 4) {
 					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 12;
-					NativeMethods.bcdec_bc6h_float(src, dst, width, isSigned);
+					NativeMethods.bcdec_bc6h_float(src, dst, width * 3, isSigned);
 					src += BC6HBlockSize;
 				}
 			}
@@ -255,7 +254,7 @@ public static class BCDec {
 			throw new IndexOutOfRangeException("Compressed is too small");
 		}
 
-		if (decompressed.Length < width * height * 8) {
+		if (decompressed.Length < width * height * 6) {
 			throw new IndexOutOfRangeException("Decompressed is too small");
 		}
 
@@ -266,8 +265,8 @@ public static class BCDec {
 
 			for (var heightIndex = 0; heightIndex < height; heightIndex += 4) {
 				for (var widthIndex = 0; widthIndex < width; widthIndex += 4) {
-					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 8;
-					NativeMethods.bcdec_bc6h_half(src, dst, width, isSigned);
+					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 6;
+					NativeMethods.bcdec_bc6h_half(src, dst, width * 3, isSigned);
 					src += BC6HBlockSize;
 				}
 			}
