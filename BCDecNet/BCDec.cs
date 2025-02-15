@@ -225,7 +225,7 @@ public static class BCDec {
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
-	public static void DecompressBC6H(ReadOnlyMemory<byte> compressed, Memory<byte> decompressed, int width, int height, bool isSigned) {
+	public static void DecompressBC6HFloat(ReadOnlyMemory<byte> compressed, Memory<byte> decompressed, int width, int height, bool isSigned) {
 		if (compressed.Length < CalculateBC6HSize(width, height)) {
 			throw new IndexOutOfRangeException("Compressed is too small");
 		}
@@ -241,8 +241,33 @@ public static class BCDec {
 
 			for (var heightIndex = 0; heightIndex < height; heightIndex += 4) {
 				for (var widthIndex = 0; widthIndex < width; widthIndex += 4) {
-					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 3;
+					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 12;
 					NativeMethods.bcdec_bc6h_float(src, dst, width, isSigned);
+					src += BC6HBlockSize;
+				}
+			}
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	public static void DecompressBC6H(ReadOnlyMemory<byte> compressed, Memory<byte> decompressed, int width, int height, bool isSigned) {
+		if (compressed.Length < CalculateBC6HSize(width, height)) {
+			throw new IndexOutOfRangeException("Compressed is too small");
+		}
+
+		if (decompressed.Length < width * height * 8) {
+			throw new IndexOutOfRangeException("Decompressed is too small");
+		}
+
+		using var srcPin = compressed.Pin();
+		using var dstPin = decompressed.Pin();
+		unsafe {
+			var src = (nint) srcPin.Pointer;
+
+			for (var heightIndex = 0; heightIndex < height; heightIndex += 4) {
+				for (var widthIndex = 0; widthIndex < width; widthIndex += 4) {
+					var dst = (nint) dstPin.Pointer + (heightIndex * width + widthIndex) * 8;
+					NativeMethods.bcdec_bc6h_half(src, dst, width, isSigned);
 					src += BC6HBlockSize;
 				}
 			}
