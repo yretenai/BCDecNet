@@ -197,8 +197,8 @@ public static class BCDec {
 		unsafe {
 			var src = (nint) srcPin.Pointer;
 
-			var tmp = stackalloc byte[8];
-			var tmpSpan = new Span<byte>(tmp, 8);
+			var tmp = stackalloc byte[32]; // 4 * 4 * 2
+			var tmpSpan = new Span<byte>(tmp, 32);
 			var dst = decompressed.Span;
 
 			for (var heightIndex = 0; heightIndex < height; heightIndex += 4) {
